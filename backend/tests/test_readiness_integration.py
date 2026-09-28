@@ -2,6 +2,7 @@ import os
 
 import pytest
 from fastapi.testclient import TestClient
+from queryrag.config import get_settings
 from queryrag.main import app
 
 client = TestClient(app)
@@ -11,6 +12,8 @@ client = TestClient(app)
 def test_ready_with_database() -> None:
     if not os.getenv("DATABASE_URL"):
         pytest.skip("DATABASE_URL is required for the integration test")
+
+    get_settings.cache_clear()
 
     response = client.get("/ready")
 

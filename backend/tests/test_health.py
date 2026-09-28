@@ -1,4 +1,5 @@
 from fastapi.testclient import TestClient
+from queryrag.config import get_settings
 from queryrag.main import app
 
 client = TestClient(app)
@@ -16,6 +17,7 @@ def test_health_endpoint() -> None:
 
 def test_ready_without_database_configuration(monkeypatch) -> None:
     monkeypatch.delenv("DATABASE_URL", raising=False)
+    get_settings.cache_clear()
 
     response = client.get("/ready")
 

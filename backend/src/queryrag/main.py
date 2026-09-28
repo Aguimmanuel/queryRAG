@@ -1,8 +1,8 @@
-import os
-
 import psycopg
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
+
+from queryrag.config import get_settings
 
 app = FastAPI(
     title="QueryRAG API",
@@ -20,9 +20,9 @@ def health() -> dict[str, str]:
 
 @app.get("/ready", response_model=None)
 def ready() -> dict[str, str] | JSONResponse:
-    database_url = os.getenv("DATABASE_URL")
+    settings = get_settings()
 
-    if not database_url:
+    if not settings.database_url:
         return JSONResponse(
             status_code=503,
             content={
@@ -32,7 +32,10 @@ def ready() -> dict[str, str] | JSONResponse:
         )
 
     try:
-        with psycopg.connect(database_url, connect_timeout=2) as connection:
+        with psycopg.connect(
+            settings.database_url,
+            connect_timeout=2,
+        ) as connection:
             connection.execute("SELECT 1")
     except psycopg.Error:
         return JSONResponse(
