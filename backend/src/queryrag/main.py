@@ -3,11 +3,17 @@ from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 
 from queryrag.config import get_settings
+from queryrag.observability import RequestIDMiddleware, configure_logging
+
+settings = get_settings()
+configure_logging(settings.log_level)
 
 app = FastAPI(
     title="QueryRAG API",
     version="0.1.0",
 )
+
+app.add_middleware(RequestIDMiddleware)
 
 
 @app.get("/health")

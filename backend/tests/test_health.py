@@ -26,3 +26,22 @@ def test_ready_without_database_configuration(monkeypatch) -> None:
         "status": "not_ready",
         "database": "missing_configuration",
     }
+
+
+def test_request_id_is_generated() -> None:
+    response = client.get("/health")
+
+    assert response.status_code == 200
+    assert response.headers["X-Request-ID"]
+
+
+def test_request_id_is_preserved() -> None:
+    request_id = "test-request-123"
+
+    response = client.get(
+        "/health",
+        headers={"X-Request-ID": request_id},
+    )
+
+    assert response.status_code == 200
+    assert response.headers["X-Request-ID"] == request_id
