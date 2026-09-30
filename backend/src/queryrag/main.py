@@ -2,6 +2,7 @@ import psycopg
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 
+from queryrag.api.documents import router as documents_router
 from queryrag.config import get_settings
 from queryrag.observability import RequestIDMiddleware, configure_logging
 
@@ -14,6 +15,7 @@ app = FastAPI(
 )
 
 app.add_middleware(RequestIDMiddleware)
+app.include_router(documents_router)
 
 
 @app.get("/health")
