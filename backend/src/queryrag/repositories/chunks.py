@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 
 from queryrag.ingestion.chunking import TextChunk
 from queryrag.models import DocumentChunk
+from sqlalchemy import select
 
 
 def create_document_chunks(
@@ -40,3 +41,22 @@ def create_document_chunks(
         database.refresh(record)
 
     return records
+
+def search_document_chunks(
+    database: Session,
+    query_embedding: list[float],
+    *,
+    limit: int = 5,
+) -> list[tuple[DocumentChunk, float]]:
+    if limit <= 0:
+        raise ValueError("limit must be greater than zero")
+
+    distance = DocumentChunk.embedding.cosine_distance(query_embedding).label(
+        "distance"
+    )
+
+    statement = select(DocumentChunk, distance).order_by(distance).limit(limit)
+
+    rows = database.execute(statement).all()
+
+    return [(chunk, float(distance_value)) for chunk, distance_value in rows]
