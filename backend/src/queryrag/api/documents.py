@@ -11,7 +11,6 @@ from queryrag.repositories.documents import (
 )
 from queryrag.schemas import DocumentCreate, DocumentRead
 
-
 router = APIRouter(
     prefix="/documents",
     tags=["documents"],
