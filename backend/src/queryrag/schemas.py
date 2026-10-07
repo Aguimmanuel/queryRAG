@@ -29,6 +29,7 @@ class SearchRequest(BaseModel):
 
 class SearchResult(BaseModel):
     document_id: UUID
+    filename: str
     page_number: int
     chunk_index: int
     text: str

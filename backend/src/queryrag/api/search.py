@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 
 from queryrag.database import get_db
 from queryrag.embeddings import embed_query
+from queryrag.models import Document
 from queryrag.repositories.chunks import search_document_chunks
 from queryrag.schemas import SearchRequest, SearchResponse, SearchResult
 
@@ -25,16 +26,24 @@ def search_endpoint(
         limit=payload.limit,
     )
 
-    results = [
-        SearchResult(
-            document_id=chunk.document_id,
-            page_number=chunk.page_number,
-            chunk_index=chunk.chunk_index,
-            text=chunk.text,
-            distance=distance,
+    results = []
+
+    for chunk, distance in matches:
+        document = database.get(Document, chunk.document_id)
+
+        if document is None:
+            continue
+
+        results.append(
+            SearchResult(
+                document_id=chunk.document_id,
+                filename=document.filename,
+                page_number=chunk.page_number,
+                chunk_index=chunk.chunk_index,
+                text=chunk.text,
+                distance=distance,
+            )
         )
-        for chunk, distance in matches
-    ]
 
     return SearchResponse(
         query=payload.query,
