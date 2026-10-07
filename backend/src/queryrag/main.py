@@ -5,6 +5,7 @@ from fastapi.responses import JSONResponse
 from queryrag.api.documents import router as documents_router
 from queryrag.config import get_settings
 from queryrag.observability import RequestIDMiddleware, configure_logging
+from queryrag.api.search import router as search_router
 
 settings = get_settings()
 configure_logging(settings.log_level)
@@ -16,6 +17,7 @@ app = FastAPI(
 
 app.add_middleware(RequestIDMiddleware)
 app.include_router(documents_router)
+app.include_router(search_router)
 
 
 @app.get("/health")
