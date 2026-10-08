@@ -39,3 +39,24 @@ class SearchResult(BaseModel):
 class SearchResponse(BaseModel):
     query: str
     results: list[SearchResult]
+
+class AnswerRequest(BaseModel):
+    query: str = Field(min_length=1)
+    limit: int = Field(default=5, ge=1, le=20)
+
+
+class Citation(BaseModel):
+    document_id: UUID
+    filename: str
+    page_number: int
+    chunk_index: int
+    distance: float
+    text: str
+
+
+class AnswerResponse(BaseModel):
+    query: str
+    answer: str
+    citations: list[Citation]
+    grounded: bool
+    insufficient_evidence: bool
