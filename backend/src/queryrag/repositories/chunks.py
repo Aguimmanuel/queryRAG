@@ -1,10 +1,10 @@
 from uuid import UUID
 
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from queryrag.ingestion.chunking import TextChunk
 from queryrag.models import DocumentChunk
-from sqlalchemy import select
 
 
 def create_document_chunks(

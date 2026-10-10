@@ -7,6 +7,8 @@ class Settings(BaseSettings):
     app_env: str = "development"
     log_level: str = "INFO"
     database_url: str | None = None
+    gemini_api_key: str | None = None
+    gemini_model: str = "gemini-2.5-flash-lite"
 
     model_config = SettingsConfigDict(
         env_prefix="",

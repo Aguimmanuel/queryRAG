@@ -5,6 +5,9 @@ from typing import Protocol
 from queryrag.schemas import AnswerResponse, Citation
 
 
+class GenerationProviderError(RuntimeError):
+    """Raised when an external text-generation provider fails."""
+
 class TextGenerator(Protocol):
     def generate(self, prompt: str) -> str:
         ...
