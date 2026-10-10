@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
@@ -14,6 +16,7 @@ from queryrag.providers.gemini import create_gemini_generator
 from queryrag.repositories.chunks import search_document_chunks
 from queryrag.schemas import AnswerRequest, AnswerResponse
 
+logger = logging.getLogger("queryrag.query")
 router = APIRouter(
     prefix="/query",
     tags=["query"],
@@ -24,6 +27,7 @@ def get_text_generator() -> TextGenerator:
     try:
         return create_gemini_generator()
     except GenerationProviderError as error:
+        logger.warning("Answer provider not configured: %s", error)
         raise HTTPException(
             status_code=503,
             detail="Answer generation is not configured",
@@ -76,6 +80,7 @@ def query_endpoint(
     try:
         return generate_grounded_answer(payload.query, evidence, generator)
     except GenerationProviderError as error:
+        logger.warning("Answer provider failed: %s", error)
         raise HTTPException(
             status_code=502,
             detail="The answer provider failed. Please try again.",

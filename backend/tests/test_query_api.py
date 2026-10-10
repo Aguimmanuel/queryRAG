@@ -2,7 +2,6 @@ from uuid import uuid4
 
 import pytest
 from fastapi.testclient import TestClient
-
 from queryrag.api import query as query_api
 from queryrag.database import get_db
 from queryrag.generation import Evidence, GenerationProviderError
@@ -89,11 +88,14 @@ def test_query_without_evidence_does_not_call_provider(client, monkeypatch) -> N
     assert generator.calls == 0
 
 
-def test_query_provider_failure_returns_502(client, monkeypatch) -> None:
+def test_query_provider_failure_returns_502(client, monkeypatch, caplog) -> None:
     use_generator(FailingGenerator())
     use_evidence(monkeypatch, SAMPLE_EVIDENCE)
 
-    response = client.post("/query", json={"query": "What is preserved?"})
+    with caplog.at_level("WARNING", logger="queryrag.query"):
+        response = client.post("/query", json={"query": "What is preserved?"})
+
+    assert "Answer provider failed: Gemini returned HTTP 503" in caplog.text
 
     assert response.status_code == 502
     assert response.json() == {

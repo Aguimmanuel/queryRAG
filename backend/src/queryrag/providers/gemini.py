@@ -42,8 +42,9 @@ class GeminiTextGenerator:
 
         if response.status_code >= 400:
             raise GenerationProviderError(
-                f"Gemini returned HTTP {response.status_code}"
-            )
+                f"Gemini returned HTTP {response.status_code}: "
+                f"{_error_message(response)}"
+            )        
 
         try:
             parts = response.json()["candidates"][0]["content"]["parts"]
@@ -58,6 +59,13 @@ class GeminiTextGenerator:
 
         return text
 
+def _error_message(response: httpx.Response) -> str:
+    try:
+        message = response.json()["error"]["message"]
+    except (ValueError, KeyError, TypeError):
+        return "no error message"
+
+    return str(message)[:300]
 
 def create_gemini_generator(
     settings: Settings | None = None,

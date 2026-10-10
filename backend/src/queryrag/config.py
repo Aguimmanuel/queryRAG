@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
     database_url: str | None = None
     gemini_api_key: str | None = None
-    gemini_model: str = "gemini-2.5-flash-lite"
+    gemini_model: str = "gemini-3.5-flash-lite"
 
     model_config = SettingsConfigDict(
         env_prefix="",

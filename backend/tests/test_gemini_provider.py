@@ -49,6 +49,19 @@ def test_gemini_http_errors_raise_provider_error(status_code: int) -> None:
     assert str(status_code) in str(error.value)
     assert FAKE_KEY not in str(error.value)
 
+def test_gemini_error_includes_google_message() -> None:
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(
+            404,
+            json={
+                "error": {"status": "NOT_FOUND", "message": "Model is not available."}
+            },
+        )
+
+    with pytest.raises(GenerationProviderError) as error:
+        make_generator(handler).generate("prompt")
+
+    assert str(error.value) == "Gemini returned HTTP 404: Model is not available."
 
 @pytest.mark.parametrize(
     "payload",
