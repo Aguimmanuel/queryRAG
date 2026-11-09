@@ -3,12 +3,14 @@ import logging
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
+from queryrag.config import get_settings
 from queryrag.database import get_db
 from queryrag.embeddings import embed_query
 from queryrag.generation import (
     Evidence,
     GenerationProviderError,
     TextGenerator,
+    filter_relevant_evidence,
     generate_grounded_answer,
 )
 from queryrag.models import Document
@@ -17,6 +19,7 @@ from queryrag.repositories.chunks import search_document_chunks
 from queryrag.schemas import AnswerRequest, AnswerResponse
 
 logger = logging.getLogger("queryrag.query")
+
 router = APIRouter(
     prefix="/query",
     tags=["query"],
@@ -75,7 +78,10 @@ def query_endpoint(
     database: Session = Depends(get_db),
     generator: TextGenerator = Depends(get_text_generator),
 ) -> AnswerResponse:
-    evidence = retrieve_evidence(database, payload.query, payload.limit)
+    evidence = filter_relevant_evidence(
+        retrieve_evidence(database, payload.query, payload.limit),
+        get_settings().max_evidence_distance,
+    )
 
     try:
         return generate_grounded_answer(payload.query, evidence, generator)

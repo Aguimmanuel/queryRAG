@@ -87,6 +87,30 @@ def test_query_without_evidence_does_not_call_provider(client, monkeypatch) -> N
     assert payload["citations"] == []
     assert generator.calls == 0
 
+def test_query_weak_matches_return_insufficient_evidence(client, monkeypatch) -> None:
+    generator = FakeGenerator()
+    use_generator(generator)
+    weak_evidence = [
+        Evidence(
+            document_id=str(uuid4()),
+            filename="sample.pdf",
+            page_number=2,
+            chunk_index=0,
+            text="Unrelated retrieval notes.",
+            distance=0.67,
+        )
+    ]
+    use_evidence(monkeypatch, weak_evidence)
+
+    response = client.post("/query", json={"query": "Who won the 2010 World Cup?"})
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["grounded"] is False
+    assert payload["insufficient_evidence"] is True
+    assert payload["citations"] == []
+    assert generator.calls == 0
+
 
 def test_query_provider_failure_returns_502(client, monkeypatch, caplog) -> None:
     use_generator(FailingGenerator())

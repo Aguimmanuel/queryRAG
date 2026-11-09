@@ -22,6 +22,12 @@ class Evidence:
     text: str
     distance: float
 
+def filter_relevant_evidence(
+    evidence: Sequence[Evidence],
+    max_distance: float,
+) -> list[Evidence]:
+    return [item for item in evidence if item.distance <= max_distance]
+
 
 def build_grounded_prompt(
     query: str,

@@ -2,6 +2,7 @@ from uuid import uuid4
 
 from queryrag.generation import (
     Evidence,
+    filter_relevant_evidence,
     generate_grounded_answer,
 )
 
@@ -63,3 +64,23 @@ def test_generation_refuses_to_invent_without_evidence() -> None:
     assert response.insufficient_evidence is True
     assert response.citations == []
     assert "insufficient evidence" in response.answer.lower()
+
+
+
+def make_evidence(distance: float) -> Evidence:
+    return Evidence(
+        document_id=str(uuid4()),
+        filename="sample.pdf",
+        page_number=1,
+        chunk_index=0,
+        text="Some evidence.",
+        distance=distance,
+    )
+
+
+def test_filter_keeps_only_evidence_within_max_distance() -> None:
+    evidence = [make_evidence(0.2), make_evidence(0.5), make_evidence(0.7)]
+
+    relevant = filter_relevant_evidence(evidence, max_distance=0.5)
+
+    assert [item.distance for item in relevant] == [0.2, 0.5]
