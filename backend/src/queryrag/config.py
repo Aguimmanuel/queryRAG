@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     gemini_api_key: str | None = None
     gemini_model: str = "gemini-3.5-flash-lite"
     max_evidence_distance: float = 0.5
+    max_upload_mb: int = 10
 
     model_config = SettingsConfigDict(
         env_prefix="",

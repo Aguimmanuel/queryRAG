@@ -35,3 +35,12 @@ def get_document(
     document_id: UUID,
 ) -> Document | None:
     return database.get(Document, document_id)
+
+
+def get_document_by_hash(
+    database: Session,
+    content_hash: str,
+) -> Document | None:
+    statement = select(Document).where(Document.content_hash == content_hash)
+
+    return database.scalars(statement).first()

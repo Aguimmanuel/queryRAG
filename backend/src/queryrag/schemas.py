@@ -22,6 +22,13 @@ class DocumentRead(BaseModel):
     created_at: datetime
     updated_at: datetime
 
+class UploadResponse(BaseModel):
+    document_id: UUID
+    filename: str
+    status: str
+    page_count: int
+    chunk_count: int
+
 class SearchRequest(BaseModel):
     query: str = Field(min_length=1)
     limit: int = Field(default=5, ge=1, le=20)
