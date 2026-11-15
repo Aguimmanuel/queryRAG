@@ -1,8 +1,11 @@
 {
-  "dataset": "efta_faqs_v0",
+  "dataset": "efta_faqs_v0.1",
   "document": "samples/cfpb_efta_faqs.pdf",
   "source_url": "https://files.consumerfinance.gov/f/documents/cfbp_electronic-fund-transfers-faqs.pdf",
   "source_note": "CFPB Electronic Fund Transfers FAQs, Version 3, last updated 2025-01-15. US federal government work.",
+    "changelog": [
+    "v0.1 (2026-11-15): reworded q07. The old wording said 'enforcement action', but the document never describes 2019-BCFP-0001 that way, so the question relied on outside knowledge."
+  ],
   "questions": [
     {
       "id": "q01",
@@ -55,7 +58,7 @@
     {
       "id": "q07",
       "type": "exact_identifier",
-      "question": "In which enforcement action did the Bureau find that requiring consumers to contact the merchant before investigating was a violation?",
+      "question": "Which case identifier does the FAQ cite for the Bureau's finding that requiring consumers to contact the merchant before investigating was a violation?",
       "answerable": true,
       "expected_pages": [14],
       "expected_keywords": ["2019-BCFP-0001"]

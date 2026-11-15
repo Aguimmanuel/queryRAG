@@ -27,6 +27,7 @@ def main() -> None:
     parser.add_argument("--limit", type=int, default=5)
     parser.add_argument("--output-dir", default="eval/results")
     parser.add_argument("--pause-seconds", type=float, default=1.0)
+    parser.add_argument("--label", default="", help="e.g. prompt-v3-run1")
     args = parser.parse_args()
 
     meta, questions = load_questions(Path(args.questions))
@@ -64,11 +65,18 @@ def main() -> None:
             time.sleep(args.pause_seconds)
 
     summary = summarize(results)
-    settings = {"limit": args.limit, "base_url": args.base_url, "date": date.today()}
-
+    settings = {
+        "limit": args.limit,
+        "base_url": args.base_url,
+        "date": date.today(),
+        "label": args.label or "none",
+    }
+    
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     stem = f"{date.today()}-{meta['dataset']}"
+    if args.label:
+        stem = f"{stem}-{args.label}"
     (output_dir / f"{stem}.md").write_text(
         render_markdown(meta, results, summary, settings), encoding="utf-8"
     )

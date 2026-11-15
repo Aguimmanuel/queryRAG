@@ -4,13 +4,18 @@ from typing import Protocol
 
 from queryrag.schemas import AnswerResponse, Citation
 
+INSUFFICIENT_EVIDENCE_MESSAGE = (
+    "Insufficient evidence in the indexed documents to answer that."
+)
+ABSTAIN_TOKEN = "INSUFFICIENT_EVIDENCE"
+
 
 class GenerationProviderError(RuntimeError):
     """Raised when an external text-generation provider fails."""
 
+
 class TextGenerator(Protocol):
-    def generate(self, prompt: str) -> str:
-        ...
+    def generate(self, prompt: str) -> str: ...
 
 
 @dataclass(frozen=True)
@@ -21,6 +26,7 @@ class Evidence:
     chunk_index: int
     text: str
     distance: float
+
 
 def filter_relevant_evidence(
     evidence: Sequence[Evidence],
@@ -34,17 +40,20 @@ def build_grounded_prompt(
     evidence: Sequence[Evidence],
 ) -> str:
     context = "\n\n".join(
-        (
-            f"Source: {item.filename}, page {item.page_number}\n"
-            f"Evidence: {item.text}"
-        )
+        (f"Source: {item.filename}, page {item.page_number}\nEvidence: {item.text}")
         for item in evidence
     )
 
-    return f"""Answer the user's question using only the evidence below.
+    return f"""You answer questions using only the evidence below.
 
-If the evidence does not support an answer, say that there is
-insufficient evidence. Do not invent facts.
+Rules:
+- Use only facts that are stated in the evidence.
+- The evidence may use different words than the question. If it contains
+  the information needed to answer, answer the question.
+- Do not use outside knowledge, even if you know the answer.
+- If the evidence does not contain the information needed to answer,
+  reply with exactly {ABSTAIN_TOKEN} and nothing else.
+- Do not invent facts.
 
 User question:
 {query}
@@ -54,25 +63,33 @@ Evidence:
 """
 
 
+def is_abstention_reply(answer: str) -> bool:
+    return ABSTAIN_TOKEN in answer.upper()
+
+
+def insufficient_evidence_response(query: str) -> AnswerResponse:
+    return AnswerResponse(
+        query=query,
+        answer=INSUFFICIENT_EVIDENCE_MESSAGE,
+        citations=[],
+        grounded=False,
+        insufficient_evidence=True,
+    )
+
+
 def generate_grounded_answer(
     query: str,
     evidence: Sequence[Evidence],
     generator: TextGenerator,
 ) -> AnswerResponse:
     if not evidence:
-        return AnswerResponse(
-            query=query,
-            answer=(
-                "Insufficient evidence in the indexed documents "
-                "to answer that."
-            ),
-            citations=[],
-            grounded=False,
-            insufficient_evidence=True,
-        )
+        return insufficient_evidence_response(query)
 
     prompt = build_grounded_prompt(query, evidence)
     answer = generator.generate(prompt)
+
+    if is_abstention_reply(answer):
+        return insufficient_evidence_response(query)
 
     citations = [
         Citation(

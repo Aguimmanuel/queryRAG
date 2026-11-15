@@ -23,8 +23,8 @@
     "abstained": false,
     "abstention_correct": true,
     "keyword_match": true,
-    "latency_ms": 2792.5326399999904,
-    "answer": "Yes, person-to-person (P2P) payments can be electronic fund transfers (EFTs) under Regulation E. Any P2P payment that meets the definition of an EFT is covered by EFTA and Regulation E."
+    "latency_ms": 1167.8203460032819,
+    "answer": "Yes. According to the evidence, person-to-person or \"P2P\" payments can be EFTs under Regulation E, and any P2P payment that meets the definition of an EFT is covered by EFTA and Regulation E."
   },
   {
     "id": "q02",
@@ -50,8 +50,8 @@
     "abstained": false,
     "abstention_correct": true,
     "keyword_match": true,
-    "latency_ms": 1300.8295279978483,
-    "answer": "Yes. According to the provided evidence, when a third party fraudulently induces a consumer into sharing their bank login or account access information (such as by tricking the consumer into providing their account login information), and that information is used to make an electronic fund transfer (EFT) from the consumer's account, the transfer meets Regulation E's definition of an unauthorized EFT."
+    "latency_ms": 1355.0936930005264,
+    "answer": "Yes. According to the provided evidence, when a third party fraudulently induces a consumer into sharing their account login information and uses that information to make an electronic fund transfer from the consumer's account, the transfer is treated as an unauthorized EFT under Regulation E."
   },
   {
     "id": "q03",
@@ -77,8 +77,8 @@
     "abstained": false,
     "abstention_correct": true,
     "keyword_match": true,
-    "latency_ms": 1261.6771389984933,
-    "answer": "Based on the provided evidence, no, your bank cannot hold you more responsible for fraud because you wrote your PIN on your debit card. \n\nSpecifically, the evidence states that a financial institution cannot consider a consumer\u2019s negligence when determining liability for unauthorized EFTs under Regulation E, and that consumer behavior constituting negligence\u2014such as writing the PIN on a debit card or on a piece of paper kept with the card\u2014does not affect the consumer's liability for unauthorized transfers."
+    "latency_ms": 1109.176010999363,
+    "answer": "No. According to the evidence, negligence by the consumer cannot be used as the basis for imposing greater liability than is permissible under Regulation E. Specifically, the evidence states that consumer behavior that may constitute negligence, such as writing the PIN on a debit card or on a piece of paper kept with the card, does not affect the consumer's liability for unauthorized transfers under Regulation E."
   },
   {
     "id": "q04",
@@ -104,8 +104,8 @@
     "abstained": false,
     "abstention_correct": true,
     "keyword_match": true,
-    "latency_ms": 1218.694952000078,
-    "answer": "Based on the provided evidence, Regulation E section 1005.2(i) (also cited as 12 CFR 1005.2(i)) defines a financial institution."
+    "latency_ms": 1071.5735179983312,
+    "answer": "Regulation E section 1005.2(i) defines a financial institution under EFTA and Regulation E."
   },
   {
     "id": "q05",
@@ -131,8 +131,8 @@
     "abstained": false,
     "abstention_correct": true,
     "keyword_match": true,
-    "latency_ms": 1473.0093439975462,
-    "answer": "Based on the provided evidence, a financial institution must report the results of its error investigation within three business days after completing its investigation."
+    "latency_ms": 975.7377589994576,
+    "answer": "Within three business days after completing its investigation."
   },
   {
     "id": "q06",
@@ -158,8 +158,8 @@
     "abstained": false,
     "abstention_correct": true,
     "keyword_match": true,
-    "latency_ms": 1428.962304002198,
-    "answer": "Based on the provided evidence, the term \"error\" does not include the following consumer requests or inquiries:\n\n* A routine inquiry about the consumer's account balance;\n* A request for information for tax or other recordkeeping purposes; or\n* A request for duplicate copies of documentation."
+    "latency_ms": 1127.8016570031468,
+    "answer": "Based on the provided evidence, the term \"error\" does not include the following kinds of consumer requests:\n\n- A routine inquiry about the consumer's account balance;\n- A request for information for tax or other recordkeeping purposes; or\n- A request for duplicate copies of documentation."
   },
   {
     "id": "q07",
@@ -174,19 +174,13 @@
     ],
     "top_distance": 0.3103438656907309,
     "retrieval_hit": true,
-    "cited_pages": [
-      9,
-      14,
-      14,
-      9,
-      8
-    ],
-    "citation_hit": true,
-    "abstained": false,
-    "abstention_correct": true,
-    "keyword_match": true,
-    "latency_ms": 1687.766652998107,
-    "answer": "Based on the provided evidence, the Bureau found that requiring a consumer to contact the merchant before initiating an error resolution investigation was a violation in enforcement action **2019-BCFP-0001**."
+    "cited_pages": [],
+    "citation_hit": false,
+    "abstained": true,
+    "abstention_correct": false,
+    "keyword_match": false,
+    "latency_ms": 1164.7358699992765,
+    "answer": "Insufficient evidence in the indexed documents to answer that."
   },
   {
     "id": "q08",
@@ -201,19 +195,13 @@
     ],
     "top_distance": 0.3176621984042035,
     "retrieval_hit": null,
-    "cited_pages": [
-      9,
-      10,
-      8,
-      7,
-      9
-    ],
+    "cited_pages": [],
     "citation_hit": null,
-    "abstained": false,
-    "abstention_correct": false,
+    "abstained": true,
+    "abstention_correct": true,
     "keyword_match": null,
-    "latency_ms": 1335.5908910016296,
-    "answer": "Based on the provided evidence, there is insufficient information to answer the question about the maximum dollar amount a consumer can be liable for if they report a lost debit card within two business days."
+    "latency_ms": 1029.628133001097,
+    "answer": "Insufficient evidence in the indexed documents to answer that."
   },
   {
     "id": "q09",
@@ -228,33 +216,33 @@
     ],
     "top_distance": 0.36648531952412733,
     "retrieval_hit": null,
-    "cited_pages": [
-      2,
-      3,
-      2,
-      3,
-      7
-    ],
+    "cited_pages": [],
     "citation_hit": null,
     "abstained": true,
     "abstention_correct": true,
     "keyword_match": null,
-    "latency_ms": 1073.5247200027516,
-    "answer": "There is insufficient evidence to answer what fees PayPal charges for sending money internationally."
+    "latency_ms": 1089.683955997316,
+    "answer": "Insufficient evidence in the indexed documents to answer that."
   },
   {
     "id": "q10",
     "type": "unanswerable_off_domain",
     "answerable": false,
-    "retrieved_pages": [],
-    "top_distance": 0.4988764524459839,
+    "retrieved_pages": [
+      7,
+      4,
+      10,
+      13,
+      8
+    ],
+    "top_distance": 0.5883455153806659,
     "retrieval_hit": null,
     "cited_pages": [],
     "citation_hit": null,
     "abstained": true,
     "abstention_correct": true,
     "keyword_match": null,
-    "latency_ms": 982.1780579986807,
-    "answer": "There is insufficient evidence to answer who won the 2010 FIFA World Cup."
+    "latency_ms": 70.84858999951393,
+    "answer": "Insufficient evidence in the indexed documents to answer that."
   }
 ]

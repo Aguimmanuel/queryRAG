@@ -1,0 +1,248 @@
+[
+  {
+    "id": "q01",
+    "type": "direct",
+    "answerable": true,
+    "retrieved_pages": [
+      2,
+      2,
+      1,
+      13,
+      6
+    ],
+    "top_distance": 0.13309110004252633,
+    "retrieval_hit": true,
+    "cited_pages": [
+      2,
+      2,
+      1,
+      13,
+      6
+    ],
+    "citation_hit": true,
+    "abstained": false,
+    "abstention_correct": true,
+    "keyword_match": true,
+    "latency_ms": 1043.135224001162,
+    "answer": "Yes."
+  },
+  {
+    "id": "q02",
+    "type": "paraphrase",
+    "answerable": true,
+    "retrieved_pages": [
+      11,
+      11,
+      13,
+      12,
+      12
+    ],
+    "top_distance": 0.23142600059508733,
+    "retrieval_hit": true,
+    "cited_pages": [
+      11,
+      11,
+      13,
+      12,
+      12
+    ],
+    "citation_hit": true,
+    "abstained": false,
+    "abstention_correct": true,
+    "keyword_match": true,
+    "latency_ms": 1165.9070260029694,
+    "answer": "Yes. When a third party fraudulently induces a consumer into sharing account access information (such as bank login information) and uses that information to make an EFT from the consumer's account, the transfer is an unauthorized electronic fund transfer (EFT) under Regulation E."
+  },
+  {
+    "id": "q03",
+    "type": "paraphrase",
+    "answerable": true,
+    "retrieved_pages": [
+      7,
+      3,
+      12,
+      13,
+      13
+    ],
+    "top_distance": 0.31711723455437046,
+    "retrieval_hit": true,
+    "cited_pages": [
+      7,
+      3,
+      12,
+      13,
+      13
+    ],
+    "citation_hit": true,
+    "abstained": false,
+    "abstention_correct": true,
+    "keyword_match": true,
+    "latency_ms": 1195.5708179993962,
+    "answer": "No. According to the evidence, negligence by the consumer\u2014such as writing the PIN on a debit card or on a piece of paper kept with the card\u2014cannot be used as the basis for imposing greater liability than is permissible under Regulation E, and does not affect the consumer's liability for unauthorized transfers."
+  },
+  {
+    "id": "q04",
+    "type": "exact_identifier",
+    "answerable": true,
+    "retrieved_pages": [
+      4,
+      6,
+      15,
+      5,
+      5
+    ],
+    "top_distance": 0.14434581995010376,
+    "retrieval_hit": true,
+    "cited_pages": [
+      4,
+      6,
+      15,
+      5,
+      5
+    ],
+    "citation_hit": true,
+    "abstained": false,
+    "abstention_correct": true,
+    "keyword_match": true,
+    "latency_ms": 1099.6951139968587,
+    "answer": "Regulation E section 1005.2(i) (or 12 CFR 1005.2(i)) defines a financial institution."
+  },
+  {
+    "id": "q05",
+    "type": "exact_number",
+    "answerable": true,
+    "retrieved_pages": [
+      8,
+      9,
+      14,
+      8,
+      9
+    ],
+    "top_distance": 0.14393151664325543,
+    "retrieval_hit": true,
+    "cited_pages": [
+      8,
+      9,
+      14,
+      8,
+      9
+    ],
+    "citation_hit": true,
+    "abstained": false,
+    "abstention_correct": true,
+    "keyword_match": true,
+    "latency_ms": 1045.043664998957,
+    "answer": "Within three business days after completing its investigation."
+  },
+  {
+    "id": "q06",
+    "type": "page_specific",
+    "answerable": true,
+    "retrieved_pages": [
+      8,
+      5,
+      6,
+      7,
+      13
+    ],
+    "top_distance": 0.22113473541347461,
+    "retrieval_hit": true,
+    "cited_pages": [
+      8,
+      5,
+      6,
+      7,
+      13
+    ],
+    "citation_hit": true,
+    "abstained": false,
+    "abstention_correct": true,
+    "keyword_match": true,
+    "latency_ms": 1569.6296589994745,
+    "answer": "Based on the provided evidence, the term \u201cerror\u201d does not include the following consumer requests:\n\n- A routine inquiry about the consumer's account balance\n- A request for information for tax or other recordkeeping purposes\n- A request for duplicate copies of documentation"
+  },
+  {
+    "id": "q07",
+    "type": "exact_identifier",
+    "answerable": true,
+    "retrieved_pages": [
+      9,
+      14,
+      14,
+      9,
+      8
+    ],
+    "top_distance": 0.3103438656907309,
+    "retrieval_hit": true,
+    "cited_pages": [],
+    "citation_hit": false,
+    "abstained": true,
+    "abstention_correct": false,
+    "keyword_match": false,
+    "latency_ms": 1036.3504830020247,
+    "answer": "Insufficient evidence in the indexed documents to answer that."
+  },
+  {
+    "id": "q08",
+    "type": "unanswerable_in_domain",
+    "answerable": false,
+    "retrieved_pages": [
+      9,
+      10,
+      8,
+      7,
+      9
+    ],
+    "top_distance": 0.3176621984042035,
+    "retrieval_hit": null,
+    "cited_pages": [],
+    "citation_hit": null,
+    "abstained": true,
+    "abstention_correct": true,
+    "keyword_match": null,
+    "latency_ms": 997.819331001665,
+    "answer": "Insufficient evidence in the indexed documents to answer that."
+  },
+  {
+    "id": "q09",
+    "type": "unanswerable_near_domain",
+    "answerable": false,
+    "retrieved_pages": [
+      2,
+      3,
+      2,
+      3,
+      7
+    ],
+    "top_distance": 0.36648531952412733,
+    "retrieval_hit": null,
+    "cited_pages": [],
+    "citation_hit": null,
+    "abstained": true,
+    "abstention_correct": true,
+    "keyword_match": null,
+    "latency_ms": 1536.6627479997987,
+    "answer": "Insufficient evidence in the indexed documents to answer that."
+  },
+  {
+    "id": "q10",
+    "type": "unanswerable_off_domain",
+    "answerable": false,
+    "retrieved_pages": [
+      7,
+      4,
+      10,
+      13,
+      8
+    ],
+    "top_distance": 0.5883455153806659,
+    "retrieval_hit": null,
+    "cited_pages": [],
+    "citation_hit": null,
+    "abstained": true,
+    "abstention_correct": true,
+    "keyword_match": null,
+    "latency_ms": 58.643282998673385,
+    "answer": "Insufficient evidence in the indexed documents to answer that."
+  }
+]

@@ -2,7 +2,6 @@ import json
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
-ABSTAIN_PHRASE = "insufficient evidence"
 
 
 @dataclass(frozen=True)
@@ -45,9 +44,7 @@ def pages_from(items: list[dict], filename: str) -> list[int]:
 
 
 def is_abstention(query_payload: dict) -> bool:
-    return bool(query_payload["insufficient_evidence"]) or (
-        ABSTAIN_PHRASE in query_payload["answer"].lower()
-    )
+    return bool(query_payload["insufficient_evidence"])
 
 
 def score_question(

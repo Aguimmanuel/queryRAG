@@ -75,11 +75,11 @@ def test_pages_from_other_documents_are_ignored() -> None:
     assert result.retrieval_hit is False
 
 
-def test_unanswerable_counts_text_abstention_as_correct() -> None:
+def test_unanswerable_with_flag_is_correct() -> None:
     result = score_question(
         make_question(answerable=False),
         search_payload([2], distance=0.35),
-        query_payload("There is insufficient evidence to answer.", [2]),
+        query_payload("Insufficient evidence.", [], insufficient=True),
         latency_ms=900,
         filename=FILENAME,
     )
@@ -87,6 +87,19 @@ def test_unanswerable_counts_text_abstention_as_correct() -> None:
     assert result.abstained is True
     assert result.abstention_correct is True
     assert result.retrieval_hit is None
+
+
+def test_text_only_abstention_without_flag_is_not_counted() -> None:
+    result = score_question(
+        make_question(answerable=False),
+        search_payload([2], distance=0.35),
+        query_payload("There is insufficient information to answer.", [2]),
+        latency_ms=900,
+        filename=FILENAME,
+    )
+
+    assert result.abstained is False
+    assert result.abstention_correct is False
 
 
 def test_unanswerable_answered_is_incorrect() -> None:
