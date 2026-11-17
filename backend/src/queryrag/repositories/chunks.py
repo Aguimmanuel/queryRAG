@@ -35,10 +35,7 @@ def create_document_chunks(
     ]
 
     database.add_all(records)
-    database.commit()
-
-    for record in records:
-        database.refresh(record)
+    database.flush()  # send the INSERTs, but let the caller commit
 
     return records
 

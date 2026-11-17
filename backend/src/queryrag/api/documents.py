@@ -33,7 +33,11 @@ def create_document_endpoint(
     payload: DocumentCreate,
     database: Session = Depends(get_db),
 ) -> DocumentRead:
-    return create_document(database, payload)
+    document = create_document(database, payload)
+    database.commit()  # one-step operation, so the endpoint finishes it
+    database.refresh(document)
+
+    return document
 
 
 @router.post(

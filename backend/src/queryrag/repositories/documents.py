@@ -18,7 +18,7 @@ def create_document(
     )
 
     database.add(document)
-    database.commit()
+    database.flush()  # send the INSERT, but let the caller commit
     database.refresh(document)
 
     return document

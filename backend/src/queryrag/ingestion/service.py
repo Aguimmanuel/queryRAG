@@ -11,6 +11,8 @@ from queryrag.repositories.chunks import create_document_chunks
 from queryrag.repositories.documents import create_document
 from queryrag.schemas import DocumentCreate
 
+MAX_ERROR_MESSAGE_LENGTH = 500  # ← NEW
+
 
 @dataclass(frozen=True)
 class IngestionResult:
@@ -26,6 +28,12 @@ def ingest_pdf(
     pdf_bytes: bytes,
     content_type: str = "application/pdf",
 ) -> IngestionResult:
+    """Ingest one PDF. This service owns the transactions.
+
+    Transaction 1: save the document row, so a later failure can be recorded.
+    Transaction 2: save all chunks AND mark the document indexed, together.
+    On failure: roll back transaction 2, then record status "failed".
+    """
     content_hash = sha256(pdf_bytes).hexdigest()
 
     document = create_document(
@@ -36,6 +44,7 @@ def ingest_pdf(
             content_hash=content_hash,
         ),
     )
+    database.commit()  # ← NEW: transaction 1 is finished here, in the service
 
     try:
         pages = parse_pdf_bytes(
@@ -54,7 +63,7 @@ def ingest_pdf(
         )
 
         document.status = "indexed"
-        database.commit()
+        database.commit()  # transaction 2: chunks + status, all or nothing
         database.refresh(document)
 
         return IngestionResult(
@@ -64,7 +73,8 @@ def ingest_pdf(
         )
 
     except Exception as error:
+        database.rollback()  # ← NEW: undo half-saved chunks, reset the session
         document.status = "failed"
-        document.error_message = str(error)
+        document.error_message = str(error)[:MAX_ERROR_MESSAGE_LENGTH]  # ← NEW
         database.commit()
         raise
