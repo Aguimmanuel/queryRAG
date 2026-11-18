@@ -1,6 +1,18 @@
-from queryrag.evaluation import EvalQuestion, score_question, summarize
+"""Unit tests for eval scoring. Pure functions, so no server or database needed."""
+
+from queryrag.evaluation import (
+    EvalQuestion,
+    error_result,
+    render_markdown,
+    score_question,
+    summarize,
+)
 
 FILENAME = "cfpb_efta_faqs.pdf"
+
+
+# --- Builders for fake API payloads ------------------------------------------
+# Only the fields the scorer reads are included, keeping each test focused.
 
 
 def make_question(answerable: bool = True) -> EvalQuestion:
@@ -29,6 +41,9 @@ def query_payload(answer: str, pages: list[int], insufficient: bool = False) -> 
         "citations": [{"filename": FILENAME, "page_number": page} for page in pages],
         "insufficient_evidence": insufficient,
     }
+
+
+# --- Answerable questions ------------------------------------------------------
 
 
 def test_answerable_question_scores_hits() -> None:
@@ -60,6 +75,7 @@ def test_answerable_question_misses_wrong_page() -> None:
 
 
 def test_pages_from_other_documents_are_ignored() -> None:
+    """Page 2 of a different PDF must not count as a hit on page 2 of ours."""
     payload = {
         "results": [{"filename": "sample.pdf", "page_number": 2, "distance": 0.1}]
     }
@@ -73,6 +89,9 @@ def test_pages_from_other_documents_are_ignored() -> None:
     )
 
     assert result.retrieval_hit is False
+
+
+# --- Unanswerable questions (abstention) ---------------------------------------
 
 
 def test_unanswerable_with_flag_is_correct() -> None:
@@ -90,6 +109,8 @@ def test_unanswerable_with_flag_is_correct() -> None:
 
 
 def test_text_only_abstention_without_flag_is_not_counted() -> None:
+    """Regression test for q08: a refusal in prose without the flag is a
+    contract failure, because clients can only rely on the structured flag."""
     result = score_question(
         make_question(answerable=False),
         search_payload([2], distance=0.35),
@@ -114,6 +135,9 @@ def test_unanswerable_answered_is_incorrect() -> None:
     assert result.abstention_correct is False
 
 
+# --- Summary ----------------------------------------------------------------------
+
+
 def test_summarize_reports_rates() -> None:
     answered = score_question(
         make_question(),
@@ -134,3 +158,43 @@ def test_summarize_reports_rates() -> None:
 
     assert summary["retrieval_hit"] == "1/1"
     assert summary["abstained_when_unanswerable"] == "1/1"
+
+
+# --- Failed API calls -----------------------------------------------------------
+
+
+def test_error_result_counts_as_incorrect_and_is_reported() -> None:
+    answered = score_question(
+        make_question(),
+        search_payload([2]),
+        query_payload("Yes.", [2]),
+        latency_ms=1000,
+        filename=FILENAME,
+    )
+    failed = error_result(
+        make_question(),
+        "HTTP 502: The answer provider failed. Please try again.",
+        latency_ms=9000,
+    )
+
+    summary = summarize([answered, failed])
+
+    assert failed.abstention_correct is False
+    assert summary["answered_when_answerable"] == "1/2"
+    assert summary["errors"] == "1"
+    # The failed call's 9000 ms must not affect the median.
+    assert summary["median_latency_ms"] == "1000"
+
+    report = render_markdown(
+        {"dataset": "t", "document": "d.pdf"}, [failed], summary, {}
+    )
+    assert "ERROR: HTTP 502" in report
+
+
+def test_unanswerable_error_is_not_counted_as_abstention() -> None:
+    """A crash must never be mistaken for a correct refusal."""
+    failed = error_result(make_question(answerable=False), "HTTP 502", latency_ms=50)
+
+    assert failed.abstained is False
+    assert failed.abstention_correct is False
+    assert failed.retrieval_hit is None
