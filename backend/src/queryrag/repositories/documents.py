@@ -44,3 +44,10 @@ def get_document_by_hash(
     statement = select(Document).where(Document.content_hash == content_hash)
 
     return database.scalars(statement).first()
+
+def delete_document(
+    database: Session,
+    document: Document,
+) -> None:
+    database.delete(document)
+    database.flush()  # send the DELETE; PostgreSQL's ON DELETE CASCADE removes the chunks
