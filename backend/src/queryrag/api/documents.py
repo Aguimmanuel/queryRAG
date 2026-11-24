@@ -2,7 +2,15 @@ import logging
 from hashlib import sha256
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
+from fastapi import (
+    APIRouter,
+    Depends,
+    File,
+    HTTPException,
+    Response,
+    UploadFile,
+    status,
+)
 from sqlalchemy.orm import Session
 
 from queryrag.config import get_settings
@@ -10,6 +18,7 @@ from queryrag.database import get_db
 from queryrag.ingestion.service import DuplicateDocumentError, ingest_pdf
 from queryrag.repositories.documents import (
     create_document,
+    delete_document,
     get_document,
     get_document_by_hash,
     list_documents,
@@ -142,3 +151,26 @@ def get_document_endpoint(
         )
 
     return document
+
+@router.delete(
+    "/{document_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+def delete_document_endpoint(
+    document_id: UUID,
+    database: Session = Depends(get_db),
+) -> Response:
+    document = get_document(database, document_id)
+
+    if document is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Document not found",
+        )
+
+    filename = document.filename
+    delete_document(database, document)
+    database.commit()  # one-step operation, so the endpoint finishes it
+    logger.info("Deleted document %s (%s)", document_id, filename)
+
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
