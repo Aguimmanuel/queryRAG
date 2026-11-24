@@ -1,0 +1,66 @@
+# Runs the full QueryRAG test suite on every push to main or develop, and on every pull request into them.
+# GitHub starts a fresh Ubuntu machine plus a real PostgreSQL + pgvector database,
+# the same image as local-db/docker-compose.yml, so the integration tests run too.
+name: tests
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: rag_user
+          POSTGRES_PASSWORD: rag_dev_password
+          POSTGRES_DB: rag_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U rag_user -d rag_db"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      # Throwaway CI database, not a secret. No GEMINI_API_KEY: the tests fake Gemini.
+      DATABASE_URL: postgresql://rag_user:rag_dev_password@localhost:5432/rag_db
+
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          version: "0.13.9"
+          enable-cache: true
+          cache-dependency-glob: backend/uv.lock
+
+      - name: Install dependencies (exactly as locked)
+        run: uv sync --locked
+
+      - name: Create the database tables
+        run: uv run alembic upgrade head
+
+      - name: Run the tests
+        # -rs prints the reason for every skipped test, so a silent skip is visible.
+        run: uv run pytest -q -rs
