@@ -6,7 +6,7 @@ from fastapi.testclient import TestClient
 from queryrag.api import documents as documents_api
 from queryrag.config import Settings
 from queryrag.database import get_db
-from queryrag.ingestion.service import IngestionResult
+from queryrag.ingestion.service import DuplicateDocumentError, IngestionResult
 from queryrag.main import app
 
 FAKE_PDF = b"%PDF-1.4 fake pdf content for tests"
@@ -89,6 +89,23 @@ def test_upload_rejects_duplicate(client, monkeypatch) -> None:
     assert response.status_code == 409
     assert response.json()["detail"]["document_id"] == str(existing.id)
 
+def test_upload_returns_409_when_database_catches_duplicate(client, monkeypatch) -> None:
+    """Check 1 found nothing, but another upload of the same file won the race."""
+    winner_id = uuid4()
+
+    def lost_the_race(database, *, filename, pdf_bytes):
+        raise DuplicateDocumentError(winner_id, "uploaded")
+
+    monkeypatch.setattr(documents_api, "ingest_pdf", lost_the_race)
+
+    response = upload(client, FAKE_PDF)
+
+    assert response.status_code == 409
+    assert response.json()["detail"] == {
+        "message": "This file has already been uploaded",
+        "document_id": str(winner_id),
+        "status": "uploaded",
+    }
 
 def test_upload_returns_422_when_pdf_cannot_be_processed(client, monkeypatch) -> None:
     def broken_ingest(database, *, filename, pdf_bytes):

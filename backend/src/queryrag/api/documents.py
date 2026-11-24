@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from queryrag.config import get_settings
 from queryrag.database import get_db
-from queryrag.ingestion.service import ingest_pdf
+from queryrag.ingestion.service import DuplicateDocumentError, ingest_pdf
 from queryrag.repositories.documents import (
     create_document,
     get_document,
@@ -17,6 +17,18 @@ from queryrag.repositories.documents import (
 from queryrag.schemas import DocumentCreate, DocumentRead, UploadResponse
 
 logger = logging.getLogger("queryrag.documents")
+
+
+def duplicate_conflict(document_id: UUID, document_status: str) -> HTTPException:
+    return HTTPException(
+        status_code=status.HTTP_409_CONFLICT,
+        detail={
+            "message": "This file has already been uploaded",
+            "document_id": str(document_id),
+            "status": document_status,
+        },
+    )
+
 
 router = APIRouter(
     prefix="/documents",
@@ -72,17 +84,11 @@ def upload_document_endpoint(
             detail="Only PDF files are supported",
         )
 
+    # Check 1 (fast): is this fingerprint already stored?
     existing = get_document_by_hash(database, sha256(pdf_bytes).hexdigest())
 
     if existing is not None:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail={
-                "message": "This file has already been uploaded",
-                "document_id": str(existing.id),
-                "status": existing.status,
-            },
-        )
+        raise duplicate_conflict(existing.id, existing.status)
 
     try:
         result = ingest_pdf(
@@ -90,6 +96,9 @@ def upload_document_endpoint(
             filename=filename,
             pdf_bytes=pdf_bytes,
         )
+    except DuplicateDocumentError as duplicate:
+        # Check 2 (guaranteed): the database's UNIQUE constraint caught a race.
+        raise duplicate_conflict(duplicate.document_id, duplicate.status) from duplicate
     except Exception as error:
         logger.warning("Ingestion failed for %s: %s", filename, error)
         raise HTTPException(

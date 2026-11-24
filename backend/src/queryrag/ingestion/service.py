@@ -2,16 +2,30 @@ from dataclasses import dataclass
 from hashlib import sha256
 from uuid import UUID
 
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from queryrag.embeddings import embed_texts
 from queryrag.ingestion.chunking import chunk_pages
 from queryrag.ingestion.parser import parse_pdf_bytes
 from queryrag.repositories.chunks import create_document_chunks
-from queryrag.repositories.documents import create_document
+from queryrag.repositories.documents import create_document, get_document_by_hash
 from queryrag.schemas import DocumentCreate
 
-MAX_ERROR_MESSAGE_LENGTH = 500  # ← NEW
+MAX_ERROR_MESSAGE_LENGTH = 500
+
+
+class DuplicateDocumentError(Exception):
+    """The same file (same SHA-256 hash) is already stored.
+
+    Raised when the UNIQUE constraint on documents.content_hash rejects the
+    INSERT, e.g. when two uploads of one file arrive at the same moment.
+    """
+
+    def __init__(self, document_id: UUID, status: str) -> None:
+        super().__init__(f"Document {document_id} already has this content")
+        self.document_id = document_id
+        self.status = status
 
 
 @dataclass(frozen=True)
@@ -36,15 +50,26 @@ def ingest_pdf(
     """
     content_hash = sha256(pdf_bytes).hexdigest()
 
-    document = create_document(
-        database,
-        DocumentCreate(
-            filename=filename,
-            content_type=content_type,
-            content_hash=content_hash,
-        ),
-    )
-    database.commit()  # ← NEW: transaction 1 is finished here, in the service
+    try:
+        document = create_document(
+            database,
+            DocumentCreate(
+                filename=filename,
+                content_type=content_type,
+                content_hash=content_hash,
+            ),
+        )
+        database.commit()  # transaction 1 is finished here, in the service
+
+    except IntegrityError:
+        # The UNIQUE constraint said no. Reset the session, then find the winner.
+        database.rollback()
+        existing = get_document_by_hash(database, content_hash)
+
+        if existing is None:
+            raise  # some other constraint failed: not a duplicate
+
+        raise DuplicateDocumentError(existing.id, existing.status) from None
 
     try:
         pages = parse_pdf_bytes(
@@ -73,8 +98,8 @@ def ingest_pdf(
         )
 
     except Exception as error:
-        database.rollback()  # ← NEW: undo half-saved chunks, reset the session
+        database.rollback()  # undo half-saved chunks, reset the session
         document.status = "failed"
-        document.error_message = str(error)[:MAX_ERROR_MESSAGE_LENGTH]  # ← NEW
+        document.error_message = str(error)[:MAX_ERROR_MESSAGE_LENGTH]
         database.commit()
         raise
