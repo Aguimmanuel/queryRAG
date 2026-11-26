@@ -23,7 +23,13 @@ from queryrag.repositories.documents import (
     get_document_by_hash,
     list_documents,
 )
-from queryrag.schemas import DocumentCreate, DocumentRead, UploadResponse
+from queryrag.schemas import (
+    DocumentCreate,
+    DocumentRead,
+    DuplicateDocumentResponse,
+    ErrorResponse,
+    UploadResponse,
+)
 
 logger = logging.getLogger("queryrag.documents")
 
@@ -43,6 +49,40 @@ router = APIRouter(
     prefix="/documents",
     tags=["documents"],
 )
+
+# Error responses, so the OpenAPI contract lists every status a client can get.
+NOT_FOUND_RESPONSE = {
+    404: {"model": ErrorResponse, "description": "No document with this ID"},
+}
+
+UPLOAD_ERROR_RESPONSES = {
+    400: {"model": ErrorResponse, "description": "The uploaded file is empty"},
+    409: {
+        "model": DuplicateDocumentResponse,
+        "description": "This exact file was already uploaded",
+    },
+    413: {
+        "model": ErrorResponse,
+        "description": "The file is larger than MAX_UPLOAD_MB",
+    },
+    415: {"model": ErrorResponse, "description": "The file is not a PDF"},
+    422: {
+        "description": (
+            "The PDF could not be processed (detail is a string), "
+            "or the request is invalid, e.g. no file sent (detail is a list)"
+        ),
+        "content": {
+            "application/json": {
+                "schema": {
+                    "anyOf": [
+                        {"$ref": "#/components/schemas/ErrorResponse"},
+                        {"$ref": "#/components/schemas/HTTPValidationError"},
+                    ]
+                }
+            }
+        },
+    },
+}
 
 
 @router.post(
@@ -65,6 +105,7 @@ def create_document_endpoint(
     "/upload",
     response_model=UploadResponse,
     status_code=status.HTTP_201_CREATED,
+    responses=UPLOAD_ERROR_RESPONSES,
 )
 def upload_document_endpoint(
     file: UploadFile = File(...),
@@ -137,6 +178,7 @@ def list_documents_endpoint(
 @router.get(
     "/{document_id}",
     response_model=DocumentRead,
+    responses=NOT_FOUND_RESPONSE,
 )
 def get_document_endpoint(
     document_id: UUID,
@@ -152,9 +194,11 @@ def get_document_endpoint(
 
     return document
 
+
 @router.delete(
     "/{document_id}",
     status_code=status.HTTP_204_NO_CONTENT,
+    responses=NOT_FOUND_RESPONSE,
 )
 def delete_document_endpoint(
     document_id: UUID,
