@@ -7,6 +7,7 @@ from queryrag.api.query import router as query_router
 from queryrag.api.search import router as search_router
 from queryrag.config import get_settings
 from queryrag.observability import RequestIDMiddleware, configure_logging
+from queryrag.schemas import HealthResponse, ReadinessResponse
 
 settings = get_settings()
 configure_logging(settings.log_level)
@@ -22,7 +23,7 @@ app.include_router(search_router)
 app.include_router(query_router)
 
 
-@app.get("/health")
+@app.get("/health", response_model=HealthResponse)
 def health() -> dict[str, str]:
     return {
         "status": "ok",
@@ -30,7 +31,16 @@ def health() -> dict[str, str]:
     }
 
 
-@app.get("/ready", response_model=None)
+@app.get(
+    "/ready",
+    response_model=ReadinessResponse,
+    responses={
+        503: {
+            "model": ReadinessResponse,
+            "description": "Not ready: database missing or unreachable",
+        },
+    },
+)
 def ready() -> dict[str, str] | JSONResponse:
     settings = get_settings()
 

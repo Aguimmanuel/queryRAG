@@ -16,7 +16,7 @@ from queryrag.generation import (
 from queryrag.models import Document
 from queryrag.providers.gemini import create_gemini_generator
 from queryrag.repositories.chunks import search_document_chunks
-from queryrag.schemas import AnswerRequest, AnswerResponse
+from queryrag.schemas import AnswerRequest, AnswerResponse, ErrorResponse
 
 logger = logging.getLogger("queryrag.query")
 
@@ -72,7 +72,20 @@ def retrieve_evidence(
     return evidence
 
 
-@router.post("", response_model=AnswerResponse)
+@router.post(
+    "",
+    response_model=AnswerResponse,
+    responses={
+        502: {
+            "model": ErrorResponse,
+            "description": "The answer provider failed after retries",
+        },
+        503: {
+            "model": ErrorResponse,
+            "description": "Answer generation is not configured (no API key)",
+        },
+    },
+)
 def query_endpoint(
     payload: AnswerRequest,
     database: Session = Depends(get_db),
